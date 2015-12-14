@@ -1,14 +1,13 @@
 /*************************************************************************
-	> File Name: test.cpp
+	> File Name: tt.cpp
 	> Author: 
 	> Mail: 
-	> Created Time: Sat 12 Dec 2015 08:32:41 PM PST
+	> Created Time: Sun 13 Dec 2015 08:03:17 PM PST
  ************************************************************************/
 
 #include<iostream>
 using namespace std;
 int main()
 {
-    cout<<"hello world!"<<endl;
-    cout<<"haha"<<endl;
+
 }
