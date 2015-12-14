@@ -1,0 +1,41 @@
+http://www.liaoxuefeng.com/  关于git的使用介绍的很好
+
+简单使用：
+1、git安装：
+linux：sudo apt-get install git
+windows:http://msysgit.github.io/ 下载后安装，一路next
+
+2、 创建ssh key：
+ssh-keygen -t rsa -C "157360765@qq.com"
+
+复制~/.ssh/id_rsa.pub下的内容, 在github.com/lengjianzheng/settings/ssh页面点击add ssh key,粘贴。
+
+3、git clone git@github.com:lengjianzheng/work.git
+
+   (git status)
+
+4、git add a.txt b.txt 或 git add *
+
+   (git status)
+
+5、git commit -m "test"
+
+6、git push origin master( 第一次)
+
+	或者 git push
+
+
+以后：
+1、git pull
+
+work……
+
+  (git status)
+
+4、git add a.txt b.txt 或 git add *
+
+   (git status)
+
+5、git commit -m "test"
+
+6、git push
