@@ -1,0 +1,85 @@
+epoll:一共三个函数
+1、int epoll_create(int size);
+2、int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);  //事件的添加、删除
+第二个参数op：
+EPOLL_CTL_ADD：注册新的fd到epfd中；
+EPOLL_CTL_MOD：修改已经注册的fd的监听事件；
+EPOLL_CTL_DEL：从epfd中删除一个fd；
+
+第四个参数struct epoll_event {
+  __uint32_t events;  /* Epoll events */
+  epoll_data_t data;  /* User data variable */
+};
+events可以是以下几个宏的集合：
+EPOLLIN ：表示对应的文件描述符可以读（包括对端SOCKET正常关闭）；
+EPOLLOUT：表示对应的文件描述符可以写；
+EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；
+EPOLLERR：表示对应的文件描述符发生错误；
+EPOLLHUP：表示对应的文件描述符被挂断；
+EPOLLET： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。
+EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里
+struct epoll_event
+{
+ __uint32_t events;    / epoll events /
+ epoll_data_t data;    / User data variable /
+};
+typedef union epoll_data
+{
+    void ptr;
+    int fd;
+    __uint32_t u32;
+    __uint64_t u64;
+} epoll_data_t;
+epoll_data是一个联合体,借助于它应用程序可以保存很多类型的信息:fd、指针等等。有了它，应用程序就可以直接定位目标了。
+
+3、int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+
+实例：
+   #define MAX_EVENTS 10
+   struct epoll_event ev, events[MAX_EVENTS];
+   int listen_sock, conn_sock, nfds, epollfd;
+
+   /* Set up listening socket, 'listen_sock' (socket(),
+	  bind(), listen()) */
+
+   epollfd = epoll_create(10);
+   if (epollfd == -1) {
+	   perror("epoll_create");
+	   exit(EXIT_FAILURE);
+   }
+
+   ev.events = EPOLL_IN;
+   ev.data.fd = listen_sock;
+   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev) == -1) {
+	   perror("epoll_ctl: listen_sock");
+	   exit(EXIT_FAILURE);
+   }
+
+   for (;;) {
+	   nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+	   if (nfds == -1) {
+		   perror("epoll_pwait");
+		   exit(EXIT_FAILURE);
+	   }
+
+	   for (n = 0; n < nfds; ++n) {
+		   if (events[n].data.fd == listen_sock) {
+			   conn_sock = accept(listen_sock,
+							   (struct sockaddr *) &local, &addrlen);
+			   if (conn_sock == -1) {
+				   perror("accept");
+				   exit(EXIT_FAILURE);
+			   }
+			   setnonblocking(conn_sock);
+			   ev.events = EPOLLIN | EPOLLET;
+			   ev.data.fd = conn_sock;
+			   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock,
+						   &ev) == -1) {
+				   perror("epoll_ctl: conn_sock);
+				   exit(EXIT_FAILURE);
+			   }
+		   } else {
+			   do_use_fd(events[n].data.fd);
+		   }
+	   }
+   }

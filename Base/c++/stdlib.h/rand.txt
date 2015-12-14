@@ -1,0 +1,17 @@
+#include <stdlib.h>
+#include <time.h>
+
+int main()
+{
+	srand(time(NULL));
+	int i = rand();
+	return 0;
+}
+
+这是rand的简单应用，rand的实现简单点就是：return(((holdrand = holdrand * 214013L + 2531011L) >> 16) & 0x7fff); (据说是VC++的实现)
+holdrand应该是一个全局变量，这样看来srand函数的调用就是为holdrand赋值(通过time函数)；否则，会有另一套赋值规则，编译好的程序每次运行的结果一样，除非重新编译。
+而如果用srand的话，编译好的程序每次运行的结果不一样。
+
+如果要随机产生X~Y的随机数，包括X,Y。
+int i = rand()%(Y-X+1)+X;
+ 
