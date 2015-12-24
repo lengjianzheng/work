@@ -1,0 +1,24 @@
+class A{
+	public:
+		A * getInstance();
+	private:
+		static std::auto_pre<A> a;
+		
+		A();
+		A(const A&);
+		A & opretator=(const A&);  //可以只声明 不实现。
+};
+
+std::auto_pre<A> A::a; //静态数据成员必须类外定义和初始化，只不过这里是默认初始化。程序结束前会对a进行析构，会释放掉堆的空间。
+
+A* A::getInstance()
+{
+	if(a.get() == 0)
+	{
+		lock();
+		if(a.get() == 0)
+			a.reset(new A);
+		unlock();
+	}
+	return a.get();
+}

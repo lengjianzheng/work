@@ -1,0 +1,17 @@
+1、find path -options [...]
+path默认是当前路径
+options主要介绍 -name
+
+-name表示按文件名查找，后跟表达式，支持正则表达式。
+
+find /usr -name "pthread*" 在usr目录下查找文件名以pthread开头的文件。
+
+2、locate 在linux预设的数据库中查找，速度快。但是刚更新的文件可能找不到，可在查找前先运行updatedb命令。
+
+locate 文件名
+
+locate pthread
+locate /etc/ss
+
+3、whereis 只用于程序名的查找，如二进制文件(-b)
+whereis mysql

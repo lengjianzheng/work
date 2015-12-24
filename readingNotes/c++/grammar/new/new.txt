@@ -1,0 +1,120 @@
+C++中new是一种运算符，用于给对象动态分配内存，并进行初始化。（所谓的动态就是，编译其不知道，运行的时候才知道。比如，分配内存的大小，连接库等）
+new的使用：
+1, type *p = new type;  比如：new int;new A;type是基本类型或类类型，分配内存不进行默认初始化。
+2，type *p = new type(parament) 比如：new int(1);new A(1,2); 进行显式初始化。
+3，type *pv = new type[100];比如：new int[100];new A[10];分配一定数量的内存，并进行默认初始化。
+
+delete的使用更简单：
+1,delete p;
+2,delete[] pv; //用于释放new[] 分配的空间
+
+平时就按照这个规则使用new运算符，别的基本也用不到。
+
+基本用不到的new运算符表达式：
+char buf[100]
+int *p = new (buf)int(100); 在以buf起始的内存空间中，初始化一个int型变量。
+int *p = new (buf)int[100]; 在以buf起始的内存空间中，默认初始化100个int型变量。
+
+ *****************************************************************
+ *****************************************************************
+ 下面讲一下C++中new的大体实现：
+ new文件（去除了一些不必要的信息）：
+ namespace std 
+ {
+	 class bad_alloc : public exception{}
+	 typedef void (*new_handler)();
+	 new_handler set_new_handler(new_handler);
+	 new_handler get_new_handler();
+ }
+ //下面是全局函数，可以使用::operator new(t)调用。但是一般不直接使用，还是用new运算符。
+ void* operator new(std::size_t)；
+ void* operator new[](std::size_t)；
+ inline void* operator new(std::size_t, void* __p) 
+{ return __p; }
+inline void* operator new[](std::size_t, void* __p)
+{ return __p; }
+
+这是new_op.cc文件中void* operator new(std::size_t)；的实现
+void *
+operator new (std::size_t sz) _GLIBCXX_THROW (std::bad_alloc)
+{
+  void *p;
+
+  /* malloc (0) is unpredictable; avoid it.  */
+  if (sz == 0)
+    sz = 1;
+  p = (void *) malloc (sz);
+  while (p == 0)
+    {
+      new_handler handler = std::get_new_handler ();
+      if (! handler)
+	_GLIBCXX_THROW_OR_ABORT(bad_alloc());
+      handler ();
+      p = (void *) malloc (sz);
+    }
+
+  return p;
+}
+
+当我们调用new运算符表达式时，编译器做了很多工作：首先调用相应的operator new函数（注意，这里的函数名居然有空格！函数名operator+也可以有空格operator  +），分配空间，然后在调用构造函数，在分配的空间中进行初始化。
+而这当中，编译器留给我们可以插手的步骤，只有operator new函数，即重载operator new函数。我们不可以主动调用构造函数。
+void* operator new(std::size_t)；
+void* operator new[](std::size_t)；
+这两个函数的作用就是分配内存，就是使用malloc方法罢了。
+注意；
+1，可以设置new_handler（这是个函数指针，用于处理内存分配失败时的处理）。如果没有设置的话，就抛出异常，否则就不断调用该方法，直到内存分配成功。这就是所谓的回调函数。
+2，如果要在类内重载的话（当然，最好不要瞎折腾），则类内的重载函数默认是static的（不知道为什么，这和operator+不一样，operator+函数不是static的）。
+而且，如果重载了一个，那么该类的所有new表达式用到的operator new函数都要在类内重载。
+
+inline void* operator new(std::size_t, void* __p) 
+{ return __p; }
+inline void* operator new[](std::size_t, void* __p)
+{ return __p; }   
+这两个函数又被叫为placement new.
+这两个函数是内联函数，用于new (buf)A(1,2);和new (buf)A[100];这类new运算符表达式中。其实可供我们操作的也没什么，这是编译器提供了一个我们可以指定对象初始化位置的接口。
+得到内存位置后，编译器会在该位置初始化对象，这些都是编译器做的，我们也管不着。（当然，如果给编译器一个错误的位置，好像编译能过，但是运行出错）。
+
+那么，什么时候需要我们重载这些函数呢？？？？？//重载是指在同一作用域，函数名相同，参数类型或者数量不同的一组函数。如果是类内，那应该加重写,隐藏了全局的operator new。
+                                    //如果是全局作用域，那应该参数的数量不一样（前面的参数要和原来的operator new一样，可以在后面添加参数），相应的new运算符表达式也要不同（确保调用的是你重载的函数）。
+									//反正使用new运算符时，编译器会先查找匹配的operator new函数，匹配的规则和一般函数一样。
+建议还是别重载了，重载就是为了自己实现内存的分配，基本没必要吧。
+
+总结：
+1，对于C++中new运算符表达式，在内存分配方面其实我们可以插手的（即自己实现内存的分配，别的方面没提供接口）。这个结论似乎没什么卵用，毕竟不作死就不会死。
+2，回调函数机制。
+(1)定义一个函数指针：    typedef void (*new_handler)();
+(2)定义set、get接口：	 new_handler set_new_handler(new_handler); new_handler get_new_handler();
+(3)使用：
+	  new_handler handler = std::get_new_handler (); //获得回调函数
+      if (! handler)
+	      _GLIBCXX_THROW_OR_ABORT(bad_alloc());//如果没定义回调函数，抛出异常，结束进程。
+      handler (); //调用回调函数
+	  
+	当然，在别的地方可以定义回调函数：
+	首先要定义回调函数：
+	void handler()
+	{
+		cout<<"hello world"<<endl;
+	}
+	然后注册回调函数：
+	set_new_handler(handler)；
+
+	在界面的事件处理机制中最常使用的就是：回调和重载。
+	
+3，回调函数中用到了函数指针，这样就稍微说一下函数指针和函数名：
+	函数指针即函数的入口地址，函数名表明上看应该是一个变量，表示一个函数，取其地址，可得函数指针。
+	其实，编译器在编译的时候是采用"Function-to-pointer conversion"策略,也就是把函数名隐式转换成函数指针类型。
+	我们没有必要深究其实现原理，只要记住几点：
+	void fun();type void(*fp)();
+	(1)fun,&fun,*fun,*****fun 值是一样的。
+	(2)fp = fun;// =&fun; =*fun; =***fun 都一样
+		fp();
+		(*fp)();
+		(***fp)();
+		效果一样,都是调用fun()。
+
+
+
+
+
+ 

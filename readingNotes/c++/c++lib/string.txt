@@ -1,0 +1,63 @@
+string : typedef basic_string<char> string; 用于存取有序字符。
+1:构造函数
+string();	//默认构造函数，产生空的string对象。
+string (const string& str);	//拷贝构造函数
+string (const string& str, size_t pos, size_t len = npos);	 //将str中从位置pos开始的len个字符存入string对象。
+注：pos从下标0算起，存入的时候包括pos指向的字符。当pos+len>str.size()或者 len = npos(-1)时 则将pos开始到str结束的字符存入string对象。
+string (const char* s);	 //
+string (const char* s, size_t n);	//存入s开始的前n个字符
+string (size_t n, char c);  //用n个c字符初始化string对象
+
+operator=：	
+string& operator= (const string& str);	
+string& operator= (const char* s);  注意判断s为非0	
+string& operator= (char c);
+
+2：Iterator
+      iterator begin();
+const_iterator begin() const;
+
+      iterator end();
+const_iterator end() const;
+
+3：Capacity
+size_t size() const; //返回string对象的实际字符(字节)数量
+void clear();
+bool empty() const; //是否为空，为空 true ，不为空 false。
+
+4:element access
+      char& operator[] (size_t pos); //返回值是个引用，所以可以改变对应pos的值。 
+const char& operator[] (size_t pos) const;
+
+5:modify
+
+string& operator+= (const string& str);	
+string& operator+= (const char* s);	
+string& operator+= (char c);     //这3个函数是在string对象后面添加字符(串)
+
+string& assign (const string& str);	
+string& assign (const string& str, size_t subpos, size_t sublen);	
+string& assign (const char* s);	
+string& assign (const char* s, size_t n);	
+string& assign (size_t n, char c)  //这是为string对象赋一个新值
+
+string& insert (size_t pos, const string& str);	
+string& insert (size_t pos, const string& str, size_t subpos, size_t sublen);
+string& insert (size_t pos, const char* s);
+string& insert (size_t pos, const char* s, size_t n);
+string& insert (size_t pos, size_t n, char c); //和赋值类似，只不过要指定插入的位置
+凡是涉及到位置pos，都是从下标为0算起，都包括这个位置。比如插入的时候，就是插入到pos的位置，pos位置原来的字符依次向后移：abc，在1位置插入123，则为a123bc。
+
+void swap (string& x, string& y); //交换x和y的值
+
+6：operation
+	
+const char* c_str() const;  //返回C风格的字符串
+	
+size_t find (const string& str, size_t pos = 0) const;	
+size_t find (const char* s, size_t pos = 0) const;	
+size_t find (const char* s, size_t pos, size_t n) const; 	
+size_t find (char c, size_t pos = 0) const;  //返回 从pos开始，第一个匹配s或c的字符串的下标。 若未找到 返回std::string::npos
+
+string substr (size_t pos = 0, size_t len = npos) const; //返回一个新的string对象，由从pos开始的len个字符组成
+

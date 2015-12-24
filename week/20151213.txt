@@ -11,36 +11,19 @@
 2、工作要知道自己做了什么(做法和目的)，学到了什么。学到了什么做记录，一定要找到可以向别人炫耀的东西，可以是对学到东西的深刻理解，也可以是改进，最好作为博客发出来。
 学到了什么很重要，要经得起别人和自己的提问。
 
-工作：
+工作：(doing or have done)
 1、数据库和缓存数据同步定时检测。
 	设置定时器，定时从数据库里读出数据与redis里面的相比较，同时从redis里面读数据，与数据库里面的相比较。
 2、微会全球信令路由实现。
 	原先的策略是同ISP的直接发，不同ISP的发给3线的bridge进程转发。现在国外要向国内发消息，给香港、转亚太，再给国内比较快。
 	所以、添加了两个单独的路由配置。
 	
-learn：
+to learn：
 
-1、git及github的使用。将总结放在github上面保管。				done(base/linux_tool_command/git&github.txt)
-2、uname的使用。   												done(base/linux常用命令和工具/uname.txt)
-3、整形总结。													done(base/C++/int)
-4、free的使用													undo
-5、单例模式总结													undo
 6、显示函数的调用堆栈											undo
-7、设计定时器													undo
-8、reids														undo
-9、mysql														undo
-10、C++云算法优先级总结											undo
-11、netstat的使用												undo
-12、coredump调试												undo
-13、多线程的查看												undo
-14、锁，是否需要加，怎么加										undo
-15、const引用总结												doing
-16、tinyxml解析													doing
 17、学会使用打印机												undo
-18、im框架进程启动过程											doing
-19、epoll使用													doing
-***********
-1、浅谈C++对象模型												doing
+
+to do:
 
 银行1900  支付宝 300  现金100
 
