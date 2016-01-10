@@ -49,7 +49,7 @@
 			源码阅读libev以及libevent的设计实现		分析其性能、及优缺点
 		4、进程、线程编程：
 			1、熟悉打印函数调用堆栈，其原理。
-			2、make、gdb
+			2、make、gdb、vim、eclipse、source insight
 			3、进程环境、进程控制、进程关系、信号。
 			4、线程、线程控制
 			5、守护进程
